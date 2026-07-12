@@ -1,0 +1,20 @@
+story_id: e01s02
+title: Context Menu JS Injection
+status: failing
+bcps: 3
+tasks:
+  - id: 1
+    description: "Write JS snippet with MutationObserver to detect action sheet and inject menu item"
+    verify: "dotnet build -c Release"
+    risk: P1
+    status: failing
+  - id: 2
+    description: "Embed JS as embedded resource and register via JavaScript Injector PluginInterface"
+    verify: "dotnet build -c Release"
+    risk: P1
+    status: failing
+  - id: 3
+    description: "Add admin check in JS — hide menu item for non-admin users"
+    verify: "dotnet build -c Release"
+    risk: P1
+    status: failing

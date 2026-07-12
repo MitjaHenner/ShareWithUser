@@ -13,6 +13,6 @@ public class PluginServiceRegistrator : IPluginServiceRegistrator
     /// <inheritdoc />
     public void RegisterServices(IServiceCollection serviceCollection, IServerApplicationHost applicationHost)
     {
-        // Register plugin services here.
+        serviceCollection.AddScoped<Api.ShareController>();
     }
 }

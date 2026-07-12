@@ -1,0 +1,13 @@
+# Epic: Context Menu Integration
+id: e01
+title: Context Menu Integration
+description: Add a "Share with User..." entry to the Jellyfin web UI context menu via JavaScript Injector
+stories:
+  - id: e01s01
+    title: Share API Endpoint
+    status: failing
+    bcps: 3
+  - id: e01s02
+    title: Context Menu JS Injection
+    status: failing
+    bcps: 3

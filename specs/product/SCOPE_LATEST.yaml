@@ -1,2 +1,42 @@
-# Product Scope — ShareWithUser
-# Updated: replace with date when scoped
+# Product Scope — Context Menu Integration
+# Updated: 2025-07-12
+
+core_value: >
+  Enable admin users to trigger the ShareWithUser action directly from the Jellyfin media context menu.
+
+summary: |
+  Add a "Share with User..." entry to the Jellyfin web UI context menu (right-click on media items).
+  The menu item appears only for admin users and on media items (movies, episodes, seasons, series, etc.).
+  Clicking the item calls a plugin-hosted REST API endpoint to perform the share action.
+
+  Integration is achieved via the community "JavaScript Injector" plugin, which allows plugins to
+  register JavaScript snippets that run inside the Jellyfin web UI. The injected JS observes the
+  context menu DOM and inserts the custom menu item.
+
+in_scope:
+  - REST API endpoint on the plugin to handle the share-from-menu request
+  - JavaScript snippet that injects a context menu item into the action sheet
+  - Programmatic JS registration via JavaScript Injector's PluginInterface
+  - Admin-only visibility guard (checked server-side in the API)
+  - Support for all media item types (movies, episodes, seasons, series, etc.)
+
+out_of_scope:
+  - Non-admin users seeing the menu item (by design — admin-only)
+  - Share dialog / UI for selecting users (phase 1 — placeholder toast only)
+  - Mobile app context menus (web UI only)
+  - Fallback when JavaScript Injector is not installed (graceful silence)
+
+constraints:
+  - Depends on JavaScript Injector plugin being installed on the server
+  - Jellyfin web UI context menu is rendered as DOM — no official extension API
+  - Injected JS runs in the user's browser (trusted admin context only)
+
+success_criteria:
+  - Admin right-clicks a media item and sees "Share with User..." in the context menu
+  - Non-admin users do not see the menu item
+  - Clicking the item calls the plugin's REST endpoint
+  - REST endpoint returns 200 for admin users, 403 for non-admins
+
+references:
+  - https://github.com/n00bcodr/Jellyfin-JavaScript-Injector
+  - jellyfin-web/src/components/itemContextMenu.js (upstream source)

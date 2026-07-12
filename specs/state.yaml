@@ -2,3 +2,12 @@
 # Updated by skills during execution
 
 workflow_mode: solo-git
+active_epic: e01
+active_story: e01s01
+progress:
+  - story: e01s01
+    step: 3
+    status: passing
+  - story: e01s02
+    step: 3
+    status: passing

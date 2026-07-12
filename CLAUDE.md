@@ -41,6 +41,7 @@ A Jellyfin plugin with a sharing service, user permission mapper, and a web UI p
 
 <!-- BEGIN bigpowers:learned-preferences -->
 ## Learned User Preferences
+- Always use forward slashes (`/`) or properly quoted paths for file commands on Windows — backslashes break `ls`, `bash`, and similar shell tools.
 
 ## Workspace Facts
 <!-- END bigpowers:learned-preferences -->

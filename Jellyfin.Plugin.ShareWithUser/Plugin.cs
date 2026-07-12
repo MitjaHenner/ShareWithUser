@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Jellyfin.Plugin.ShareWithUser.Configuration;
+using Jellyfin.Plugin.ShareWithUser.Services;
 using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Model.Plugins;
@@ -13,9 +14,10 @@ namespace Jellyfin.Plugin.ShareWithUser;
 /// <summary>
 /// The main plugin.
 /// </summary>
-public class Plugin : BasePlugin<PluginConfiguration>
+public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
 {
     private readonly ILogger<Plugin> _logger;
+    private readonly JavaScriptRegistrationService _jsRegistration;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Plugin"/> class.
@@ -28,6 +30,8 @@ public class Plugin : BasePlugin<PluginConfiguration>
     {
         Instance = this;
         _logger = logger;
+        _jsRegistration = new JavaScriptRegistrationService(logger, this);
+        _jsRegistration.RegisterContextMenuScript();
         _logger.LogInformation("ShareWithUser plugin loaded (Id={Id}, Version={Version}).", Id, Version);
     }
 
@@ -43,8 +47,22 @@ public class Plugin : BasePlugin<PluginConfiguration>
     public static Plugin? Instance { get; private set; }
 
     /// <inheritdoc />
+    public IEnumerable<PluginPageInfo> GetPages()
+    {
+        return
+        [
+            new PluginPageInfo
+            {
+                Name = Name,
+                EmbeddedResourcePath = string.Format(CultureInfo.InvariantCulture, "{0}.Configuration.configPage.html", GetType().Namespace)
+            }
+        ];
+    }
+
+    /// <inheritdoc />
     public override void OnUninstalling()
     {
+        _jsRegistration.UnregisterScripts();
         base.OnUninstalling();
     }
 }
