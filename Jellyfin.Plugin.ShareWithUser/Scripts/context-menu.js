@@ -302,9 +302,10 @@
 
         // Create dialog (the visible box with rounded corners)
         var dialog = document.createElement('div');
-        dialog.className = 'dialog shareDialog';
+        dialog.className = 'dialog shareDialog formDialog';
         dialog.setAttribute('data-share-dialog', 'true');
-        dialog.style.maxWidth = '400px';
+        dialog.style.minWidth = '320px';
+        dialog.style.maxWidth = '500px';
         dialog.style.width = 'auto';
         dialog.style.maxHeight = '80vh';
 
@@ -363,22 +364,24 @@
 
         innerContent.appendChild(userList);
 
-        // Footer (matches formDialogFooter)
+        // Footer (matches Edit Metadata dialog footer)
         var footer = document.createElement('div');
         footer.className = 'formDialogFooter';
 
         var cancelBtn = document.createElement('button');
         cancelBtn.is = 'emby-button';
         cancelBtn.type = 'button';
-        cancelBtn.className = 'raised button-cancel block btnCancel formDialogFooterItem';
+        cancelBtn.className = 'raised button-cancel btnCancel';
         cancelBtn.innerHTML = '<span>Cancel</span>';
+        cancelBtn.style.flexBasis = '12em';
         cancelBtn.addEventListener('click', closeShareDialog);
 
         var saveBtn = document.createElement('button');
         saveBtn.is = 'emby-button';
         saveBtn.type = 'button';
-        saveBtn.className = 'raised button-submit block btnSave formDialogFooterItem';
+        saveBtn.className = 'raised button-submit btnSave';
         saveBtn.innerHTML = '<span>Save</span>';
+        saveBtn.style.flexBasis = '12em';
         saveBtn.addEventListener('click', function () {
             saveShareTags(itemId, userList, tags);
             closeShareDialog();
@@ -387,9 +390,11 @@
         footer.appendChild(cancelBtn);
         footer.appendChild(saveBtn);
 
-        // Assemble: scrollContent > innerContent + footer
+        // Footer inside innerContent (matches Edit Metadata dialog structure)
+        innerContent.appendChild(footer);
+
+        // Assemble: scrollContent > innerContent
         scrollContent.appendChild(innerContent);
-        scrollContent.appendChild(footer);
 
         // Assemble: dialog > header + scrollContent
         dialog.appendChild(header);
