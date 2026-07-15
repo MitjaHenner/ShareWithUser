@@ -44,6 +44,7 @@ A Jellyfin plugin with a sharing service, user permission mapper, and a web UI p
 - Always use forward slashes (`/`) or properly quoted paths for file commands on Windows — backslashes break `ls`, `bash`, and similar shell tools.
 
 ## Workspace Facts
+- **Jellyfin core source:** `C:/Users/mitja/Projects/jellyfin` — reference for plugin SDK patterns, API contracts, server-side interfaces, and C# conventions.
 - **Jellyfin Web source:** `C:/Users/mitja/Projects/jellyfin-web` — reference for UI component classes, dialog structure, and styling when designing plugin UI to keep everything consistent with Jellyfin's native look and feel.
 - **Jellyfin instance:** `http://192.168.0.20:8096` — live server for testing
 

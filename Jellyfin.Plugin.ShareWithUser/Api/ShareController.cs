@@ -1,3 +1,8 @@
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using MediaBrowser.Controller.Library;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,19 +12,44 @@ namespace Jellyfin.Plugin.ShareWithUser.Api;
 /// Share actions exposed to the web UI.
 /// </summary>
 [ApiController]
-[AllowAnonymous]
+[Authorize]
 [Route("Plugins/ShareWithUser")]
 public class ShareController : ControllerBase
 {
+    private readonly ILibraryManager _libraryManager;
+
     /// <summary>
-    /// Shares a media item. Admin only.
+    /// Initializes a new instance of the <see cref="ShareController"/> class.
     /// </summary>
-    /// <param name="itemId">The media item ID.</param>
-    /// <returns>200 OK for admins, 403 for non-admins.</returns>
-    [HttpPost("Share")]
-    public IActionResult Share([FromBody] string itemId)
+    /// <param name="libraryManager">Library manager instance.</param>
+    public ShareController(ILibraryManager libraryManager)
     {
-        // TODO: Add admin check and real share logic
-        return Ok(new { shared = true, itemId });
+        _libraryManager = libraryManager;
+    }
+
+    /// <summary>
+    /// Updates share tags on a media item. Admin only (enforced by Jellyfin auth middleware).
+    /// </summary>
+    /// <param name="request">The share tags request.</param>
+    /// <returns>NoContent on success, NotFound if item does not exist.</returns>
+    /// <response code="204">Tags updated.</response>
+    /// <response code="404">Item not found.</response>
+    [HttpPost("ShareTags")]
+    public async Task<ActionResult> UpdateShareTags([FromBody] ShareTagsRequest request)
+    {
+        var item = _libraryManager.GetItemById(request.ItemId);
+        if (item is null)
+        {
+            return NotFound();
+        }
+
+        var newTags = request.Tags?.Select(t => t.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).ToArray()
+                      ?? Array.Empty<string>();
+        item.Tags = newTags;
+
+        item.OnMetadataChanged();
+        await item.UpdateToRepositoryAsync(ItemUpdateType.MetadataEdit, CancellationToken.None).ConfigureAwait(false);
+
+        return NoContent();
     }
 }
