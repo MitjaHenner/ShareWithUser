@@ -45,4 +45,14 @@ A Jellyfin plugin with a sharing service, user permission mapper, and a web UI p
 
 ## Workspace Facts
 - **Jellyfin Web source:** `C:/Users/mitja/Projects/jellyfin-web` — reference for UI component classes, dialog structure, and styling when designing plugin UI to keep everything consistent with Jellyfin's native look and feel.
+- **Jellyfin instance:** `http://192.168.0.20:8096` — live server for testing
+
+## Chrome DevTools Access
+I have access to Chrome via `pi-chrome-devtools` tools (navigate, evaluate JS, screenshot, list/select pages).
+
+### Testing workflow
+1. **Do NOT check the UI automatically** after making changes.
+2. The user must **manually copy the DLL** to the Jellyfin plugins folder and **restart the server**.
+3. Wait for the user to explicitly say to check — e.g. *"check if it works"*, *"verify in browser"*.
+4. When told to check, use Chrome DevTools to navigate, screenshot, and evaluate JS to inspect the plugin UI.
 <!-- END bigpowers:learned-preferences -->
