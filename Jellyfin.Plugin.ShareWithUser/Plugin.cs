@@ -14,7 +14,9 @@ namespace Jellyfin.Plugin.ShareWithUser;
 /// <summary>
 /// The main plugin.
 /// </summary>
+#pragma warning disable CA1001 // Type owns disposable field but is not disposable (disposed in OnUninstalling)
 public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
+#pragma warning restore CA1001
 {
     private readonly ILogger<Plugin> _logger;
     private readonly JavaScriptRegistrationService _jsRegistration;
@@ -63,6 +65,7 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     public override void OnUninstalling()
     {
         _jsRegistration.UnregisterScripts();
+        _jsRegistration.Dispose();
         base.OnUninstalling();
     }
 }

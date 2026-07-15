@@ -13,10 +13,11 @@ namespace Jellyfin.Plugin.ShareWithUser.Services;
 /// <summary>
 /// Registers JavaScript snippets with the JavaScript Injector plugin.
 /// </summary>
-public class JavaScriptRegistrationService
+public sealed class JavaScriptRegistrationService : IDisposable
 {
     private readonly ILogger _logger;
     private readonly Plugin _plugin;
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="JavaScriptRegistrationService"/> class.
@@ -43,8 +44,11 @@ public class JavaScriptRegistrationService
             return;
         }
 
-        // Fire-and-forget async task: retry finding JavaScript Injector for up to 10 seconds
-        _ = Task.Run(() => RegisterScriptAsync(script, CancellationToken.None));
+        // Fire-and-forget async task: retry finding JavaScript Injector for up to 10 seconds.
+        // Cancellation token ensures cleanup if plugin unloads before registration completes.
+        _ = Task.Run(
+            () => RegisterScriptAsync(script, _cancellationTokenSource.Token),
+            _cancellationTokenSource.Token);
     }
 
     private async Task RegisterScriptAsync(string script, CancellationToken cancellationToken)
@@ -133,22 +137,26 @@ public class JavaScriptRegistrationService
     {
         try
         {
-            var jsInjectorAssembly = AssemblyLoadContext.All
-                .SelectMany(x => x.Assemblies)
-                .FirstOrDefault(x => x.FullName?.Contains("Jellyfin.Plugin.JavaScriptInjector", StringComparison.Ordinal) ?? false);
+            var jsInjectorAssembly = FindJavaScriptInjectorAssembly();
 
-            if (jsInjectorAssembly is null)
+            if (jsInjectorAssembly is not null)
             {
-                return;
+                var pluginInterfaceType = jsInjectorAssembly.GetType("Jellyfin.Plugin.JavaScriptInjector.PluginInterface");
+                pluginInterfaceType?.GetMethod("UnregisterAllScriptsFromPlugin")?.Invoke(null, new object[] { _plugin.Id.ToString() });
             }
-
-            var pluginInterfaceType = jsInjectorAssembly.GetType("Jellyfin.Plugin.JavaScriptInjector.PluginInterface");
-            pluginInterfaceType?.GetMethod("UnregisterAllScriptsFromPlugin")?.Invoke(null, new object[] { _plugin.Id.ToString() });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to unregister scripts from JavaScript Injector.");
         }
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        _cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Dispose();
+        GC.SuppressFinalize(this);
     }
 
     private static string? LoadEmbeddedScript(string resourceName)
