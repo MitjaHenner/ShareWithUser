@@ -304,8 +304,8 @@
         var dialog = document.createElement('div');
         dialog.className = 'dialog shareDialog formDialog';
         dialog.setAttribute('data-share-dialog', 'true');
-        dialog.style.minWidth = '320px';
-        dialog.style.maxWidth = '500px';
+        dialog.style.minWidth = '400px';
+        dialog.style.maxWidth = '600px';
         dialog.style.width = 'auto';
         dialog.style.maxHeight = '80vh';
 
@@ -313,25 +313,19 @@
         var header = document.createElement('div');
         header.className = 'formDialogHeader';
 
+        // Close button — placed before title, matching native Jellyfin dialogs
+        var closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'btnCancel autoSize paper-icon-button-light';
+        closeBtn.setAttribute('title', 'Close');
+        closeBtn.innerHTML = '<span class="material-icons arrow_back" aria-hidden="true"></span>';
+        closeBtn.addEventListener('click', closeShareDialog);
+        header.appendChild(closeBtn);
+
         var title = document.createElement('h3');
         title.className = 'formDialogHeaderTitle';
         title.textContent = 'Share with Users';
         header.appendChild(title);
-
-        // Right-side buttons container
-        var headerButtons = document.createElement('div');
-        headerButtons.className = 'dialogHeader flex align-items-center justify-content-center';
-
-        // Close button (paper-icon-button-light = no background)
-        var closeBtn = document.createElement('button');
-        closeBtn.is = 'paper-icon-button-light';
-        closeBtn.type = 'button';
-        closeBtn.className = 'btnCancel btnClose autoSize';
-        closeBtn.setAttribute('title', 'Close');
-        closeBtn.innerHTML = '<span class="material-icons close" aria-hidden="true"></span>';
-        closeBtn.addEventListener('click', closeShareDialog);
-        headerButtons.appendChild(closeBtn);
-        header.appendChild(headerButtons);
 
         // Scrollable content (matches formDialogContent)
         var scrollContent = document.createElement('div');
@@ -371,17 +365,15 @@
         var cancelBtn = document.createElement('button');
         cancelBtn.is = 'emby-button';
         cancelBtn.type = 'button';
-        cancelBtn.className = 'raised button-cancel btnCancel';
+        cancelBtn.className = 'emby-button raised button-cancel block btnCancel formDialogFooterItem';
         cancelBtn.innerHTML = '<span>Cancel</span>';
-        cancelBtn.style.flexBasis = '12em';
         cancelBtn.addEventListener('click', closeShareDialog);
 
         var saveBtn = document.createElement('button');
         saveBtn.is = 'emby-button';
         saveBtn.type = 'button';
-        saveBtn.className = 'raised button-submit btnSave';
+        saveBtn.className = 'emby-button raised button-submit block btnSave formDialogFooterItem';
         saveBtn.innerHTML = '<span>Save</span>';
-        saveBtn.style.flexBasis = '12em';
         saveBtn.addEventListener('click', function () {
             saveShareTags(itemId, userList, tags);
             closeShareDialog();
