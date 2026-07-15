@@ -2,55 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>ShareWithUser</title>
+    <title>Share With User</title>
 </head>
 <body>
-    <div id="sharewithuserPage" data-role="page" class="page type-interior pluginConfigurationPage">
+    <div id="shareWithUserConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-select,emby-checkbox">
         <div data-role="content">
             <div class="content-primary">
-                <h1>ShareWithUser</h1>
-                <p class="flex align-items-center justify-content-center">
-                    <a is="emby-button" class="button-link" href="https://github.com" target="_blank" rel="noopener noreferrer">
-                        GitHub
-                    </a>
-                </p>
+                <form id="shareWithUserConfigForm">
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="IsEnabled" name="TrueFalseCheckBox" type="checkbox" is="emby-checkbox" />
+                            <span>Enable plugin</span>
+                        </label>
+                    </div>
 
-                <div class="inputBlock">
-                    <label class="inputLabel">
-                        <span>Enable Plugin</span>
-                        <input type="checkbox" is="emby-toggle" id="isEnabled" />
-                    </label>
-                    <div class="fieldDescription">Enable or disable the ShareWithUser plugin.</div>
-                </div>
-
-                <br />
-                <button is="emby-button" type="button" class="raised button-submit block emby-button" data-modal="save">
-                    Save
-                </button>
+                    <div>
+                        <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                            <span>Save</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
+        <script type="text/javascript">
+            var ShareWithUserConfig = {
+                pluginUniqueId: 'd5b7527c-3c98-4813-8fe7-ce7b31022c53'
+            };
 
-    <script>
-        document.getElementById('sharewithuserPage').addEventListener('pageshow', function () {
-            Dashboard.showLoadingMsg();
-            ApiClient.getPluginConfiguration('d5b7527c-3c98-4813-8fe7-ce7b31022c53').then(function (config) {
-                document.getElementById('isEnabled').checked = config.IsEnabled;
-                Dashboard.hideLoadingMsg();
-            });
-        });
-
-        document.getElementById('sharewithuserPage').addEventListener('submit', function (e) {
-            e.preventDefault();
-            Dashboard.showLoadingMsg();
-            ApiClient.getPluginConfiguration('d5b7527c-3c98-4813-8fe7-ce7b31022c53').then(function (config) {
-                config.IsEnabled = document.getElementById('isEnabled').checked;
-                ApiClient.updatePluginConfiguration('d5b7527c-3c98-4813-8fe7-ce7b31022c53', config).then(function () {
-                    Dashboard.processPluginConfigurationUpdateResult();
+            document.querySelector('#shareWithUserConfigPage')
+                .addEventListener('pageshow', function() {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(ShareWithUserConfig.pluginUniqueId).then(function (config) {
+                        document.querySelector('#IsEnabled').checked = config.IsEnabled;
+                        Dashboard.hideLoadingMsg();
+                    });
                 });
-            });
-            return false;
-        });
-    </script>
+
+            document.querySelector('#shareWithUserConfigForm')
+                .addEventListener('submit', function(e) {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(ShareWithUserConfig.pluginUniqueId).then(function (config) {
+                        config.IsEnabled = document.querySelector('#IsEnabled').checked;
+                        ApiClient.updatePluginConfiguration(ShareWithUserConfig.pluginUniqueId, config).then(function (result) {
+                            Dashboard.processPluginConfigurationUpdateResult(result);
+                        });
+                    });
+
+                    e.preventDefault();
+                    return false;
+                });
+        </script>
+    </div>
 </body>
 </html>
