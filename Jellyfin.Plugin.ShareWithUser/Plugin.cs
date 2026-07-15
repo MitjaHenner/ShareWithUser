@@ -48,7 +48,7 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     }
 
     /// <inheritdoc />
-    public override string Name => "ShareWithUser";
+    public override string Name => "Share With User";
 
     /// <inheritdoc />
     public override Guid Id => Guid.Parse("d5b7527c-3c98-4813-8fe7-ce7b31022c53");
