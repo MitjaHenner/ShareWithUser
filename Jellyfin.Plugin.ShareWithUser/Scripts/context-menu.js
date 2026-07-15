@@ -394,7 +394,7 @@
                 shareBtn.className = 'listItem listItem-button actionSheetMenuItem emby-button';
                 shareBtn.innerHTML =
                     '<span class="actionsheetMenuItemIcon listItemIcon listItemIcon-transparent material-icons">share</span>' +
-                    '<span class="listItemBody actionsheetListItemBody"><span class="listItemBodyText actionSheetItemText">Share with User...</span></span>';
+                    '<span class="listItemBody actionsheetListItemBody"><span class="listItemBodyText actionSheetItemText">Share with user</span></span>';
 
                 shareBtn.addEventListener('click', function () {
                     container.remove();
