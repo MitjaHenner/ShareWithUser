@@ -33,7 +33,17 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
         Instance = this;
         _logger = logger;
         _jsRegistration = new JavaScriptRegistrationService(logger, this);
-        _jsRegistration.RegisterContextMenuScript();
+        ConfigurationChanged += OnConfigurationChanged;
+
+        if (Configuration.IsEnabled)
+        {
+            _jsRegistration.RegisterContextMenuScript();
+        }
+        else
+        {
+            _logger.LogInformation("ShareWithUser plugin loaded but disabled by configuration.");
+        }
+
         _logger.LogInformation("ShareWithUser plugin loaded (Id={Id}, Version={Version}).", Id, Version);
     }
 
@@ -64,8 +74,33 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     /// <inheritdoc />
     public override void OnUninstalling()
     {
+        ConfigurationChanged -= OnConfigurationChanged;
         _jsRegistration.UnregisterScripts();
         _jsRegistration.Dispose();
         base.OnUninstalling();
+    }
+
+    private void OnConfigurationChanged(object? sender, BasePluginConfiguration config)
+    {
+        if (sender is not Plugin plugin || plugin != this)
+        {
+            return;
+        }
+
+        if (config is not PluginConfiguration pluginConfig)
+        {
+            return;
+        }
+
+        if (pluginConfig.IsEnabled)
+        {
+            _logger.LogInformation("ShareWithUser plugin enabled via configuration.");
+            _jsRegistration.RegisterContextMenuScript();
+        }
+        else
+        {
+            _logger.LogInformation("ShareWithUser plugin disabled via configuration.");
+            _jsRegistration.UnregisterScripts();
+        }
     }
 }
