@@ -304,7 +304,7 @@
         var dialog = document.createElement('div');
         dialog.className = 'dialog shareDialog formDialog';
         dialog.setAttribute('data-share-dialog', 'true');
-        dialog.style.minWidth = '400px';
+        dialog.style.minWidth = '300px';
         dialog.style.maxWidth = '600px';
         dialog.style.width = 'auto';
         dialog.style.maxHeight = '80vh';
@@ -330,11 +330,11 @@
         // Scrollable content (matches formDialogContent)
         var scrollContent = document.createElement('div');
         scrollContent.className = 'formDialogContent smoothScrollY';
-        scrollContent.style.paddingTop = '2em';
 
         // Inner content wrapper (matches dialogContentInner)
         var innerContent = document.createElement('div');
         innerContent.className = 'dialogContentInner dialog-content-centered';
+        innerContent.style.padding = '0.5em 2em 1em 2em';
 
         var userList = document.createElement('div');
         userList.className = 'checkboxList';
@@ -344,16 +344,11 @@
                 return tag.toLowerCase() === user.Name.toLowerCase();
             });
 
-            var listItem = document.createElement('div');
-            listItem.className = 'listItem listItem-button';
-            listItem.innerHTML =
-                '<div class="listItemBody">' +
-                    '<label class="checkboxContainer">' +
-                        '<input type="checkbox" class="emby-checkbox" data-username="' + escapeHtml(user.Name) + '" ' + (isChecked ? 'checked' : '') + ' />' +
-                        '<span class="checkboxLabel">' + escapeHtml(user.Name) + '</span>' +
-                    '</label>' +
-                '</div>';
-            userList.appendChild(listItem);
+            var label = document.createElement('label');
+            label.innerHTML =
+                '<input is="emby-checkbox" type="checkbox" data-username="' + escapeHtml(user.Name) + '" ' + (isChecked ? 'checked' : '') + ' />' +
+                '<span>' + escapeHtml(user.Name) + '</span>';
+            userList.appendChild(label);
         });
 
         innerContent.appendChild(userList);
