@@ -4,10 +4,12 @@
 Read CONVENTIONS.md before any GitHub or git operation.
 
 ## Project
+
 A Jellyfin plugin to share media with specific users.
 Stack: C#, .NET 9, Jellyfin plugin
 
 ## Commands
+
 | Action | Command |
 |--------|---------|
 | Run    | `dotnet build -c Release` then copy DLL to Jellyfin plugins folder |
@@ -18,18 +20,23 @@ Stack: C#, .NET 9, Jellyfin plugin
 | CI     | `gh pr checks` (when a PR is open) |
 
 ## Architecture
+
 A Jellyfin plugin with a sharing service, user permission mapper, and a web UI panel for managing shares.
 
 ## Conventions
+
 - Default C# naming conventions (PascalCase for public members, camelCase for private)
 - Follow Jellyfin plugin SDK patterns and conventions
+- **Release versioning:** always use the version from `build.yaml` (4-digit format `X.Y.Z.W`) for git tags and GitHub releases. Bump both `build.yaml` and `csproj` `<Version>` together.
 
 ## Never
+
 - Never dismiss reproducible gate failures as pre-existing or out of scope
 - Never proceed on red Preflight or red CI — invoke quick-fix or fix-bug first
 - Never modify Jellyfin core code
 
 ## Agent Rules
+
 - **Workflow Mandate:** You MUST use the bigpowers skills (e.g. `plan-work`, `develop-tdd`, `orchestrate-project`) to perform tasks. DO NOT write code directly in response to a user prompt like "build this feature".
 - **Always Green:** Preflight and CI must be green before forward work. Reproducible gate failures require **fix-or-log** (quick-fix → fix-bug) per CONVENTIONS § Discovered Defects.
 - Read specs/ before writing code.
@@ -41,17 +48,21 @@ A Jellyfin plugin with a sharing service, user permission mapper, and a web UI p
 
 <!-- BEGIN bigpowers:learned-preferences -->
 ## Learned User Preferences
+
 - Always use forward slashes (`/`) or properly quoted paths for file commands on Windows — backslashes break `ls`, `bash`, and similar shell tools.
 
 ## Workspace Facts
+
 - **Jellyfin core source:** `C:/Users/mitja/Projects/jellyfin` — reference for plugin SDK patterns, API contracts, server-side interfaces, and C# conventions.
 - **Jellyfin Web source:** `C:/Users/mitja/Projects/jellyfin-web` — reference for UI component classes, dialog structure, and styling when designing plugin UI to keep everything consistent with Jellyfin's native look and feel.
 - **Jellyfin instance:** `http://192.168.0.20:8096` — live server for testing
 
 ## Chrome DevTools Access
+
 I have access to Chrome via `pi-chrome-devtools` tools (navigate, evaluate JS, screenshot, list/select pages).
 
 ### Testing workflow
+
 1. **Do NOT check the UI automatically** after making changes.
 2. The user must **manually copy the DLL** to the Jellyfin plugins folder and **restart the server**.
 3. Wait for the user to explicitly say to check — e.g. *"check if it works"*, *"verify in browser"*.
