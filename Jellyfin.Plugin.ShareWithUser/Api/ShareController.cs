@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Jellyfin.Plugin.ShareWithUser.Services;
 using MediaBrowser.Controller.Library;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,14 +19,17 @@ namespace Jellyfin.Plugin.ShareWithUser.Api;
 public class ShareController : ControllerBase
 {
     private readonly ILibraryManager _libraryManager;
+    private readonly SharedMediaService _sharedMediaService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ShareController"/> class.
     /// </summary>
     /// <param name="libraryManager">Library manager instance.</param>
-    public ShareController(ILibraryManager libraryManager)
+    /// <param name="sharedMediaService">Shared media service instance.</param>
+    public ShareController(ILibraryManager libraryManager, SharedMediaService sharedMediaService)
     {
         _libraryManager = libraryManager;
+        _sharedMediaService = sharedMediaService;
     }
 
     /// <summary>
@@ -37,6 +42,8 @@ public class ShareController : ControllerBase
     [HttpPost("ShareTags")]
     public async Task<ActionResult> UpdateShareTags([FromBody] ShareTagsRequest request)
     {
+        Plugin.Instance?.EnsureScriptRegistered();
+
         var item = _libraryManager.GetItemById(request.ItemId);
         if (item is null)
         {
@@ -51,5 +58,20 @@ public class ShareController : ControllerBase
         await item.UpdateToRepositoryAsync(ItemUpdateType.MetadataEdit, CancellationToken.None).ConfigureAwait(false);
 
         return NoContent();
+    }
+
+    /// <summary>
+    /// Gets all media items shared with each user (by username tag).
+    /// When a parent item (e.g. Series) is tagged, children are excluded.
+    /// Excludes the currently logged-in user from the results.
+    /// </summary>
+    /// <returns>Mapping of usernames to their shared media items.</returns>
+    [HttpGet("SharedMedia")]
+    public ActionResult<IReadOnlyList<UserSharedMedia>> GetSharedMedia()
+    {
+        Plugin.Instance?.EnsureScriptRegistered();
+
+        var currentUsername = User?.Identity?.Name;
+        return Ok(_sharedMediaService.GetSharedMedia(currentUsername));
     }
 }

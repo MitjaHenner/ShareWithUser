@@ -19,6 +19,9 @@ public sealed class JavaScriptRegistrationService : IDisposable
     private readonly Plugin _plugin;
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
+    private string? _scriptContent;
+    private bool _isRegistered;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="JavaScriptRegistrationService"/> class.
     /// </summary>
@@ -37,8 +40,8 @@ public sealed class JavaScriptRegistrationService : IDisposable
     /// </summary>
     public void RegisterContextMenuScript()
     {
-        var script = LoadEmbeddedScript("Jellyfin.Plugin.ShareWithUser.Scripts.context-menu.js");
-        if (script is null)
+        _scriptContent = LoadEmbeddedScript("Jellyfin.Plugin.ShareWithUser.Scripts.context-menu.js");
+        if (_scriptContent is null)
         {
             _logger.LogWarning("Failed to load context-menu.js embedded resource.");
             return;
@@ -47,8 +50,66 @@ public sealed class JavaScriptRegistrationService : IDisposable
         // Fire-and-forget async task: retry finding JavaScript Injector for up to 10 seconds.
         // Cancellation token ensures cleanup if plugin unloads before registration completes.
         _ = Task.Run(
-            () => RegisterScriptAsync(script, _cancellationTokenSource.Token),
+            () => RegisterScriptAsync(_scriptContent, _cancellationTokenSource.Token),
             _cancellationTokenSource.Token);
+    }
+
+    /// <summary>
+    /// Lazy registration fallback — call from API endpoints to catch the case where
+    /// startup registration missed because JavaScript Injector wasn't loaded yet.
+    /// Idempotent: no-ops if already registered or script wasn't loaded.
+    /// </summary>
+    public void EnsureRegistered()
+    {
+        if (_isRegistered || _scriptContent is null)
+        {
+            return;
+        }
+
+        var jsInjectorAssembly = FindJavaScriptInjectorAssembly();
+        if (jsInjectorAssembly is null)
+        {
+            return;
+        }
+
+        TryRegisterScript(jsInjectorAssembly, _scriptContent, "[lazy] ");
+    }
+
+    private void TryRegisterScript(Assembly jsInjectorAssembly, string script, string logPrefix)
+    {
+        var pluginInterfaceType = jsInjectorAssembly.GetType("Jellyfin.Plugin.JavaScriptInjector.PluginInterface");
+        if (pluginInterfaceType is null)
+        {
+            _logger.LogWarning("{Prefix}JavaScript Injector PluginInterface type not found.", logPrefix);
+            return;
+        }
+
+        var registerResult = pluginInterfaceType.GetMethod("RegisterScript")?.Invoke(null, new object[] { BuildScriptRegistration(script) });
+
+        if (registerResult is bool success && success)
+        {
+            _isRegistered = true;
+            _logger.LogInformation("{Prefix}Successfully registered context menu script with JavaScript Injector.", logPrefix);
+        }
+        else
+        {
+            _logger.LogWarning("{Prefix}Failed to register context menu script with JavaScript Injector.", logPrefix);
+        }
+    }
+
+    private JObject BuildScriptRegistration(string script)
+    {
+        return new JObject
+        {
+            { "id", $"{_plugin.Id}-context-menu" },
+            { "name", "ShareWithUser Context Menu" },
+            { "script", script },
+            { "enabled", true },
+            { "requiresAuthentication", true },
+            { "pluginId", _plugin.Id.ToString() },
+            { "pluginName", _plugin.Name },
+            { "pluginVersion", _plugin.Version.ToString() }
+        };
     }
 
     private async Task RegisterScriptAsync(string script, CancellationToken cancellationToken)
@@ -69,7 +130,7 @@ public sealed class JavaScriptRegistrationService : IDisposable
 
                 if (jsInjectorAssembly is not null)
                 {
-                    await ExecuteRegistration(jsInjectorAssembly, script, cancellationToken).ConfigureAwait(false);
+                    TryRegisterScript(jsInjectorAssembly, script, "[async] ");
                     return;
                 }
 
@@ -88,39 +149,6 @@ public sealed class JavaScriptRegistrationService : IDisposable
         }
 
         _logger.LogWarning("JavaScript Injector plugin not found after {MaxAttempts} attempts — context menu item will not appear.", maxAttempts);
-    }
-
-    private async Task ExecuteRegistration(Assembly jsInjectorAssembly, string script, CancellationToken cancellationToken)
-    {
-        var pluginInterfaceType = jsInjectorAssembly.GetType("Jellyfin.Plugin.JavaScriptInjector.PluginInterface");
-        if (pluginInterfaceType is null)
-        {
-            _logger.LogWarning("JavaScript Injector PluginInterface type not found.");
-            return;
-        }
-
-        var scriptRegistration = new JObject
-        {
-            { "id", $"{_plugin.Id}-context-menu" },
-            { "name", "ShareWithUser Context Menu" },
-            { "script", script },
-            { "enabled", true },
-            { "requiresAuthentication", true },
-            { "pluginId", _plugin.Id.ToString() },
-            { "pluginName", _plugin.Name },
-            { "pluginVersion", _plugin.Version.ToString() }
-        };
-
-        var registerResult = pluginInterfaceType.GetMethod("RegisterScript")?.Invoke(null, new object[] { scriptRegistration });
-
-        if (registerResult is bool success && success)
-        {
-            _logger.LogInformation("Successfully registered context menu script with JavaScript Injector.");
-        }
-        else
-        {
-            _logger.LogWarning("Failed to register context menu script with JavaScript Injector.");
-        }
     }
 
     private static Assembly? FindJavaScriptInjectorAssembly()

@@ -58,6 +58,15 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     /// </summary>
     public static Plugin? Instance { get; private set; }
 
+    /// <summary>
+    /// Ensures the context menu script is registered with JavaScript Injector.
+    /// Safe to call repeatedly — idempotent after successful registration.
+    /// </summary>
+    public void EnsureScriptRegistered()
+    {
+        _jsRegistration.EnsureRegistered();
+    }
+
     /// <inheritdoc />
     public IEnumerable<PluginPageInfo> GetPages()
     {
