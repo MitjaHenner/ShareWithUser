@@ -17,10 +17,9 @@ A [Jellyfin](https://jellyfin.org) plugin that lets you share media items with s
 
 ## Installation
 
-1. Download the latest release from the [releases page](https://github.com/MitjaHenner/ShareWithUser/releases)
-2. Copy the DLL to your Jellyfin plugins folder
-3. Restart Jellyfin
-4. Enable the plugin from Dashboard > Plugins > Share With User
+1. Navigate to **Dashboard → Plugins → Custom Repositories → Add**
+2. Paste: `https://MitjaHenner.github.io/ShareWithUser/manifest.json`
+3. Find **Share With User** in the Catalog and install
 
 ## Usage
 
