@@ -24,6 +24,16 @@ A [Jellyfin](https://jellyfin.org) plugin that lets you share media items with s
 
 ## Usage
 
+### Prerequisites
+
+For each user you want to share media with, add their **exact username as an allowed tag** in Jellyfin's parental control settings:
+
+1. Navigate to **Dashboard > Networking > Parental Control**
+2. Under **Allowed tags**, add the username (case-sensitive)
+3. Repeat for each user
+
+Without this step, the plugin cannot apply username tags to media items.
+
 ### Sharing media
 
 Right-click any media item in the Jellyfin web UI and select "Share with user" to add username tags. Items tagged with a username will appear in that user's shared media list.
