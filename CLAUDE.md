@@ -6,7 +6,7 @@ Read CONVENTIONS.md before any GitHub or git operation.
 ## Project
 
 A Jellyfin plugin to share media with specific users.
-Stack: C#, .NET 9, Jellyfin plugin
+Stack: C#, .NET 10, Jellyfin 12 plugin
 
 ## Commands
 

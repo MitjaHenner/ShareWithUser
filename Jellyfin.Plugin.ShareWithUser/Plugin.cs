@@ -41,10 +41,16 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
         }
         else
         {
-            _logger.LogInformation("ShareWithUser plugin loaded but disabled by configuration.");
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("ShareWithUser plugin loaded but disabled by configuration.");
+            }
         }
 
-        _logger.LogInformation("ShareWithUser plugin loaded (Id={Id}, Version={Version}).", Id, Version);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("ShareWithUser plugin loaded (Id={Id}, Version={Version}).", Id, Version);
+        }
     }
 
     /// <inheritdoc />
@@ -106,12 +112,20 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
 
         if (pluginConfig.IsEnabled)
         {
-            _logger.LogInformation("ShareWithUser plugin enabled via configuration.");
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("ShareWithUser plugin enabled via configuration.");
+            }
+
             _jsRegistration.RegisterContextMenuScript();
         }
         else
         {
-            _logger.LogInformation("ShareWithUser plugin disabled via configuration.");
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("ShareWithUser plugin disabled via configuration.");
+            }
+
             _jsRegistration.UnregisterScripts();
         }
     }
