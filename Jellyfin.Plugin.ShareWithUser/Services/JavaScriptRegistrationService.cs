@@ -43,7 +43,11 @@ public sealed class JavaScriptRegistrationService : IDisposable
         _scriptContent = LoadEmbeddedScript("Jellyfin.Plugin.ShareWithUser.Scripts.context-menu.js");
         if (_scriptContent is null)
         {
-            _logger.LogWarning("Failed to load context-menu.js embedded resource.");
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning("Failed to load context-menu.js embedded resource.");
+            }
+
             return;
         }
 
@@ -80,7 +84,11 @@ public sealed class JavaScriptRegistrationService : IDisposable
         var pluginInterfaceType = jsInjectorAssembly.GetType("Jellyfin.Plugin.JavaScriptInjector.PluginInterface");
         if (pluginInterfaceType is null)
         {
-            _logger.LogWarning("{Prefix}JavaScript Injector PluginInterface type not found.", logPrefix);
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning("{Prefix}JavaScript Injector PluginInterface type not found.", logPrefix);
+            }
+
             return;
         }
 
@@ -89,11 +97,17 @@ public sealed class JavaScriptRegistrationService : IDisposable
         if (registerResult is bool success && success)
         {
             _isRegistered = true;
-            _logger.LogInformation("{Prefix}Successfully registered context menu script with JavaScript Injector.", logPrefix);
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation("{Prefix}Successfully registered context menu script with JavaScript Injector.", logPrefix);
+            }
         }
         else
         {
-            _logger.LogWarning("{Prefix}Failed to register context menu script with JavaScript Injector.", logPrefix);
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning("{Prefix}Failed to register context menu script with JavaScript Injector.", logPrefix);
+            }
         }
     }
 
@@ -134,21 +148,30 @@ public sealed class JavaScriptRegistrationService : IDisposable
                     return;
                 }
 
-                _logger.LogDebug(
-                    "JavaScript Injector not yet loaded, retrying in {DelayMs}ms (attempt {Attempt}/{MaxAttempts})...",
-                    delayMs,
-                    attempt + 1,
-                    maxAttempts);
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug(
+                        "JavaScript Injector not yet loaded, retrying in {DelayMs}ms (attempt {Attempt}/{MaxAttempts})...",
+                        delayMs,
+                        attempt + 1,
+                        maxAttempts);
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while attempting to register context menu script.");
+                if (_logger.IsEnabled(LogLevel.Error))
+                {
+                    _logger.LogError(ex, "Error while attempting to register context menu script.");
+                }
             }
 
             await Task.Delay(delayMs, cancellationToken).ConfigureAwait(false);
         }
 
-        _logger.LogWarning("JavaScript Injector plugin not found after {MaxAttempts} attempts — context menu item will not appear.", maxAttempts);
+        if (_logger.IsEnabled(LogLevel.Warning))
+        {
+            _logger.LogWarning("JavaScript Injector plugin not found after {MaxAttempts} attempts — context menu item will not appear.", maxAttempts);
+        }
     }
 
     private static Assembly? FindJavaScriptInjectorAssembly()
@@ -175,7 +198,10 @@ public sealed class JavaScriptRegistrationService : IDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to unregister scripts from JavaScript Injector.");
+            if (_logger.IsEnabled(LogLevel.Error))
+            {
+                _logger.LogError(ex, "Failed to unregister scripts from JavaScript Injector.");
+            }
         }
     }
 
